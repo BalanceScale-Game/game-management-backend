@@ -6,7 +6,7 @@ import {
   IsArray,
   IsEnum,
 } from 'class-validator';
-import { Roles } from 'src/entities/role.entity';
+import { Roles } from 'src/models/role.model';
 
 export class CreateUserDto {
   @IsEmail()

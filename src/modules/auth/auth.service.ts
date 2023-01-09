@@ -3,7 +3,7 @@ import { UsersService } from '../user/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { PostgresErrorCode } from '../database/postgresErrorCodes.enum';
+import { MongoErrorCode } from '../database/mongoErrorCodes.enum';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bcrypt = require('bcrypt');
 
@@ -24,7 +24,7 @@ export class AuthService {
       });
       return createdUser;
     } catch (error) {
-      if (error?.code === PostgresErrorCode.UniqueViolation) {
+      if (error?.code?.toString() === MongoErrorCode.UniqueViolation) {
         throw new HttpException(
           'User with that email already exists',
           HttpStatus.BAD_REQUEST,

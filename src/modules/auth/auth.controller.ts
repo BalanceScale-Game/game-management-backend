@@ -7,6 +7,7 @@ import {
   UseGuards,
   Res,
   Get,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -24,9 +25,11 @@ import JwtAuthGuard from './guard/jwtAuth.guard';
 import LoginDto from './dto/login.dto';
 import JwtRefreshGuard from './guard/jwtRefresh.guard';
 import { ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import User from 'src/entities/user.entity';
+import { User } from 'src/models/user.model';
+import MongooseClassSerializerInterceptor from 'src/utils/mongooseClassSerializer.interceptor';
 
 @Controller('auth')
+@UseInterceptors(MongooseClassSerializerInterceptor(User))
 @ApiTags('Auth')
 export class AuthController {
   constructor(

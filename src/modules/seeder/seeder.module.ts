@@ -1,12 +1,11 @@
 import * as Joi from '@hapi/joi';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import Address from 'src/entities/address.entity';
-import Role from 'src/entities/role.entity';
-import User from 'src/entities/user.entity';
 import { DatabaseModule } from '../database/database.module';
 import { SeederService } from './seeder.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { User, UserSchema } from 'src/models/user.model';
+import { Role, RoleSchema } from 'src/models/role.model';
 
 @Module({
   imports: [
@@ -30,7 +29,10 @@ import { SeederService } from './seeder.service';
       }),
     }),
     DatabaseModule,
-    TypeOrmModule.forFeature([User, Role, Address]),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Role.name, schema: RoleSchema },
+    ]),
   ],
   providers: [SeederService, Logger],
 })

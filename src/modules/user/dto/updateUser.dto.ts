@@ -27,12 +27,6 @@ class AddressDto {
   public country: string;
 }
 
-export class UpdateUserDto {
-  @IsObject()
-  @ValidateNested()
-  @Type(() => AddressDto)
-  @ApiProperty()
-  address: AddressDto;
-}
+export class UpdateUserDto {}
 
 export default UpdateUserDto;

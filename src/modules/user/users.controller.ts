@@ -15,10 +15,10 @@ import {
 } from '@nestjs/common';
 import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AllExceptionsFilter } from 'src/configs/decorators/catchError';
-import User from 'src/entities/user.entity';
 import JwtAuthGuard from '../auth/guard/jwtAuth.guard';
 import UpdateUserDto from './dto/updateUser.dto';
 import { UsersService } from './users.service';
+import { User } from 'src/models/user.model';
 
 @Controller('user')
 @ApiTags('User')

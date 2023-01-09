@@ -2,11 +2,14 @@ import { Module } from '@nestjs/common';
 import CustomLogger from './customLogger';
 import { ConfigModule } from '@nestjs/config';
 import LogsService from './logs.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import Log from 'src/entities/log.entity';
+import { Log, LogSchema } from 'src/models/log.model';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
-  imports: [ConfigModule, TypeOrmModule.forFeature([Log])],
+  imports: [
+    ConfigModule,
+    MongooseModule.forFeature([{ name: Log.name, schema: LogSchema }]),
+  ],
   providers: [CustomLogger, LogsService],
   exports: [CustomLogger],
 })

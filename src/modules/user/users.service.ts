@@ -1,28 +1,23 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import Address from 'src/entities/address.entity';
-import Role, { Roles } from 'src/entities/role.entity';
-import { In, Repository } from 'typeorm';
-import User from '../../entities/user.entity';
 import CreateUserDto from './dto/createUser.dto';
 import UpdateUserDto from './dto/updateUser.dto';
 import bcrypt from 'bcrypt';
+import { InjectModel } from '@nestjs/mongoose';
+import { User, UserDocument } from 'src/models/user.model';
+import { Model } from 'mongoose';
+import { Role, RoleDocument, Roles } from 'src/models/role.model';
+import { In } from 'typeorm';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
 
-    @InjectRepository(Address)
-    private addresesRepository: Repository<Address>,
-
-    @InjectRepository(Role)
-    private roleRepository: Repository<Role>,
+    @InjectModel(Role.name) private roleModel: Model<RoleDocument>,
   ) {}
 
   async getByEmail(email: string) {
-    const user = await this.usersRepository.findOne({
+    const user = await this.userModel.findOne({
       where: { email },
       relations: ['roles'],
     });
@@ -36,7 +31,7 @@ export class UsersService {
   }
 
   async getById(id: number) {
-    const user = await this.usersRepository.findOne({ where: { id } });
+    const user = await this.userModel.findOne({ where: { id } });
     if (user) {
       return user;
     }
@@ -49,62 +44,45 @@ export class UsersService {
   public async createUser(userData: CreateUserDto) {
     const { email, name, password, roles } = userData;
 
-    const newUser = new User();
-    newUser.email = email;
-    newUser.name = name;
-    newUser.password = password;
-
-    let roleEntities = [];
+    let roleEntities = [] as Role[];
     if (roles.length > 0) {
-      roleEntities = await this.roleRepository.find({
-        where: {
-          name: In(roles),
-        },
+      roleEntities = await this.roleModel.find({
+        name: { $in: roles },
       });
     } else {
-      const role = await this.roleRepository.find({
-        where: {
+      const role: Role[] = await this.roleModel.find(
+        {
           name: Roles.MEMBER,
         },
-      });
-      roleEntities.push(role);
+        { _id: 1 },
+      );
+      roleEntities.push(role?.[0]);
     }
 
-    newUser.roles = roleEntities;
+    const newUser = await this.userModel.create({
+      name,
+      email,
+      password,
+      roles: roleEntities,
+    });
 
-    await this.usersRepository.save(newUser);
     return newUser;
   }
 
   public async updateUserById(userId: number, userData: UpdateUserDto) {
-    let user = await this.getById(userId);
-
-    if (!user.address?.id) {
-      const address = await this.addresesRepository.save(userData.address);
-      await this.usersRepository.update(
-        {
-          id: userId,
-        },
-        {
-          address: address,
-        },
-      );
-      user = await this.getById(userId);
-    } else {
-      await this.addresesRepository.update(
-        { id: user.address.id },
-        userData.address,
-      );
-    }
+    const user = await this.getById(userId);
 
     return user;
   }
 
   async setCurrentRefreshToken(refreshToken: string, userId: number) {
     const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-    await this.usersRepository.update(userId, {
-      currentHashedRefreshToken,
-    });
+    await this.userModel.updateOne(
+      { _id: userId },
+      {
+        currentHashedRefreshToken,
+      },
+    );
   }
 
   async getUserIfRefreshTokenMatches(refreshToken: string, userId: number) {
@@ -121,8 +99,11 @@ export class UsersService {
   }
 
   async removeRefreshToken(userId: number) {
-    return this.usersRepository.update(userId, {
-      currentHashedRefreshToken: null,
-    });
+    return this.userModel.updateOne(
+      { _id: userId },
+      {
+        currentHashedRefreshToken: null,
+      },
+    );
   }
 }

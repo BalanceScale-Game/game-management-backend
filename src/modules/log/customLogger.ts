@@ -3,74 +3,71 @@ import { ConsoleLoggerOptions } from '@nestjs/common/services/console-logger.ser
 import { ConfigService } from '@nestjs/config';
 import getLogLevels from 'src/utils/getLogLevels';
 import LogsService from './logs.service';
- 
+
 @Injectable()
 class CustomLogger extends ConsoleLogger {
   private readonly logsService: LogsService;
- 
+
   constructor(
     context: string,
     options: ConsoleLoggerOptions,
     configService: ConfigService,
-    logsService: LogsService
+    logsService: LogsService,
   ) {
     const environment = configService.get('NODE_ENV');
-    
-    super(
-      context,
-      {
-        ...options,
-        logLevels: getLogLevels(environment === 'production')
-      }
-    );
- 
+
+    super(context, {
+      ...options,
+      logLevels: getLogLevels(environment === 'production'),
+    });
+
     this.logsService = logsService;
   }
- 
+
   log(message: string, context?: string) {
     super.log.apply(this, [message, context]);
- 
+
     this.logsService.createLog({
       message,
       context,
-      level: 'log'
-    })
+      level: 'log',
+    });
   }
   error(message: string, stack?: string, context?: string) {
     super.error.apply(this, [message, stack, context]);
     this.logsService.createLog({
       message,
       context,
-      level: 'error'
-    })
+      level: 'error',
+    });
   }
   warn(message: string, context?: string) {
     super.warn.apply(this, [message, context]);
- 
+
     this.logsService.createLog({
       message,
       context,
-      level: 'error'
-    })
+      level: 'error',
+    });
   }
   debug(message: string, context?: string) {
     super.debug.apply(this, [message, context]);
- 
+
     this.logsService.createLog({
       message,
       context,
-      level: 'error'
-    })
+      level: 'error',
+    });
   }
   verbose(message: string, context?: string) {
     super.debug.apply(this, [message, context]);
- 
+
     this.logsService.createLog({
       message,
       context,
-      level: 'error'
-    })
+      level: 'error',
+    });
   }
 }
- 
+
 export default CustomLogger;

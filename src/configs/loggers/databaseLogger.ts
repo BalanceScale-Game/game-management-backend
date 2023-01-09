@@ -1,26 +1,46 @@
 import { Logger as TypeOrmLogger, QueryRunner } from 'typeorm';
 import { Logger as NestLogger } from '@nestjs/common';
- 
+
 class DatabaseLogger implements TypeOrmLogger {
-  private readonly logger = new NestLogger('SQL');  
- 
+  private readonly logger = new NestLogger('SQL');
+
   logQuery(query: string, parameters?: unknown[], queryRunner?: QueryRunner) {
     if (queryRunner?.data?.isCreatingLogs) {
       return;
     }
-    this.logger.log(`${query} -- Parameters: ${this.stringifyParameters(parameters)}`);
+    this.logger.log(
+      `${query} -- Parameters: ${this.stringifyParameters(parameters)}`,
+    );
   }
-  logQueryError(error: string, query: string, parameters?: unknown[], queryRunner?: QueryRunner) {
+  logQueryError(
+    error: string,
+    query: string,
+    parameters?: unknown[],
+    queryRunner?: QueryRunner,
+  ) {
     if (queryRunner?.data?.isCreatingLogs) {
       return;
     }
-    this.logger.error(`${query} -- Parameters: ${this.stringifyParameters(parameters)} -- ${error}`);
+    this.logger.error(
+      `${query} -- Parameters: ${this.stringifyParameters(
+        parameters,
+      )} -- ${error}`,
+    );
   }
-  logQuerySlow(time: number, query: string, parameters?: unknown[], queryRunner?: QueryRunner) {
+  logQuerySlow(
+    time: number,
+    query: string,
+    parameters?: unknown[],
+    queryRunner?: QueryRunner,
+  ) {
     if (queryRunner?.data?.isCreatingLogs) {
       return;
     }
-    this.logger.warn(`Time: ${time} -- Parameters: ${this.stringifyParameters(parameters)} -- ${query}`);
+    this.logger.warn(
+      `Time: ${time} -- Parameters: ${this.stringifyParameters(
+        parameters,
+      )} -- ${query}`,
+    );
   }
   logMigration(message: string) {
     this.logger.log(message);
@@ -28,7 +48,11 @@ class DatabaseLogger implements TypeOrmLogger {
   logSchemaBuild(message: string) {
     this.logger.log(message);
   }
-  log(level: 'log' | 'info' | 'warn', message: string, queryRunner?: QueryRunner) {
+  log(
+    level: 'log' | 'info' | 'warn',
+    message: string,
+    queryRunner?: QueryRunner,
+  ) {
     if (queryRunner?.data?.isCreatingLogs) {
       return;
     }
@@ -50,5 +74,5 @@ class DatabaseLogger implements TypeOrmLogger {
     }
   }
 }
- 
+
 export default DatabaseLogger;

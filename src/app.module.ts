@@ -1,4 +1,4 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { Module, MiddlewareConsumer } from '@nestjs/common';
 import LoggerMiddleware from './configs/middlewares/logger.middleware';
 import { DatabaseModule } from './modules/database/database.module';
 import { LoggerModule } from './modules/log/logs.module';
@@ -8,7 +8,6 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/user/users.module';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './configs/decorators/catchError';
-import { ProductModule } from './modules/product/product.module';
 
 @Module({
   providers: [
@@ -21,12 +20,11 @@ import { ProductModule } from './modules/product/product.module';
     LoggerModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
-        // PostgresQL
-        POSTGRES_HOST: Joi.string().required(),
-        POSTGRES_PORT: Joi.number().required(),
-        POSTGRES_USER: Joi.string().required(),
-        POSTGRES_PASSWORD: Joi.string().required(),
-        POSTGRES_DB: Joi.string().required(),
+        // MongoDB
+        MONGO_USERNAME: Joi.string().optional(),
+        MONGO_PASSWORD: Joi.string().optional(),
+        MONGO_DATABASE: Joi.string().required(),
+        MONGO_HOST: Joi.string().required(),
 
         // Port server
         PORT: Joi.number(),
@@ -41,7 +39,6 @@ import { ProductModule } from './modules/product/product.module';
     DatabaseModule,
     AuthModule,
     UsersModule,
-    ProductModule,
   ],
 })
 export class AppModule {
