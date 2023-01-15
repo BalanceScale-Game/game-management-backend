@@ -1,13 +1,28 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { UsersService } from '../user/users.service';
-import { RegisterDto } from './dto/register.dto';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UseFilters,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { MongoErrorCode } from '../database/mongoErrorCodes.enum';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bcrypt = require('bcrypt');
 
+// Service
+import { UsersService } from '../user/users.service';
+
+// Dto
+import { RegisterDto } from './dto/register.dto';
+
+// Interface
+import { TokenPayload } from './interfaces';
+
+import { MongoErrorCode } from '../database/mongoErrorCodes.enum';
+import { AllExceptionsFilter } from 'src/configs/decorators/catchError';
+
 @Injectable()
+@UseFilters(AllExceptionsFilter)
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
@@ -102,5 +117,17 @@ export class AuthService {
       'Authentication=; HttpOnly; Path=/; Max-Age=0',
       'Refresh=; HttpOnly; Path=/; Max-Age=0',
     ];
+  }
+
+  public getUserFromAuthenticationToken(token: string) {
+    try {
+      const user = this.jwtService.verify(token, {
+        secret: this.configService.get('JWT_SECRET'),
+      });
+      console.log({ user });
+      return user;
+    } catch (ex) {
+      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+    }
   }
 }

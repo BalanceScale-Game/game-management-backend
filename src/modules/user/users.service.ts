@@ -1,14 +1,23 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import CreateUserDto from './dto/createUser.dto';
-import UpdateUserDto from './dto/updateUser.dto';
-import bcrypt from 'bcrypt';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UseFilters,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from 'src/models/user.model';
 import { Model } from 'mongoose';
-import { Role, RoleDocument, Roles } from 'src/models/role.model';
-import { In } from 'typeorm';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const bcrypt = require('bcrypt');
 
+// Model
+import { Role, RoleDocument, Roles, User, UserDocument } from 'src/models';
+
+// Dto
+import { CreateUserDto, UpdateUserDto } from './dto';
+
+import { AllExceptionsFilter } from 'src/configs/decorators/catchError';
 @Injectable()
+@UseFilters(AllExceptionsFilter)
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
@@ -17,10 +26,11 @@ export class UsersService {
   ) {}
 
   async getByEmail(email: string) {
-    const user = await this.userModel.findOne({
-      where: { email },
-      relations: ['roles'],
-    });
+    const user = await this.userModel
+      .findOne({
+        email,
+      })
+      .populate('roles');
     if (user) {
       return user;
     }
@@ -30,7 +40,7 @@ export class UsersService {
     );
   }
 
-  async getById(id: number) {
+  async getById(id: number): Promise<User> {
     const user = await this.userModel.findOne({ where: { id } });
     if (user) {
       return user;
@@ -69,6 +79,7 @@ export class UsersService {
     return newUser;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async updateUserById(userId: number, userData: UpdateUserDto) {
     const user = await this.getById(userId);
 

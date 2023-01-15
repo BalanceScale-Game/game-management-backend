@@ -1,26 +1,33 @@
 import {
   Body,
-  Catch,
   Controller,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   Patch,
-  Post,
   Query,
   Req,
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
 import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+
+// Decorator
 import { AllExceptionsFilter } from 'src/configs/decorators/catchError';
+
+// Guard
 import JwtAuthGuard from '../auth/guard/jwtAuth.guard';
-import UpdateUserDto from './dto/updateUser.dto';
+
+// Service
 import { UsersService } from './users.service';
-import { User } from 'src/models/user.model';
+
+// Dto
+import { UpdateUserDto } from './dto';
+
+// Model
+import { User } from 'src/models';
 
 @Controller('user')
+@UseFilters(AllExceptionsFilter)
 @ApiTags('User')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -43,7 +50,6 @@ export class UsersController {
   }
 
   @Patch('/:userId')
-  @UseFilters(AllExceptionsFilter)
   @UseGuards(JwtAuthGuard)
   @ApiParam({
     name: 'userId',

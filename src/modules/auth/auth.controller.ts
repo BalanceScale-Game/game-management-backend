@@ -8,35 +8,37 @@ import {
   Res,
   Get,
   UseInterceptors,
+  UseFilters,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 // Service
 import { UsersService } from '../user/users.service';
 import { AuthService } from './auth.service';
 
 // Dto
-import { RegisterDto } from './dto/register.dto';
+import { GetUserFromTokenDto, LoginDto, RegisterDto } from './dto';
 
 // Guard
 import JwtAuthGuard from './guard/jwtAuth.guard';
-import LoginDto from './dto/login.dto';
 import JwtRefreshGuard from './guard/jwtRefresh.guard';
-import { ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { User } from 'src/models/user.model';
+
+// Model
+import { User } from 'src/models';
+
 import MongooseClassSerializerInterceptor from 'src/utils/mongooseClassSerializer.interceptor';
+import { AllExceptionsFilter } from 'src/configs/decorators/catchError';
 
 @Controller('auth')
 @UseInterceptors(MongooseClassSerializerInterceptor(User))
+@UseFilters(AllExceptionsFilter)
 @ApiTags('Auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
-    private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
   ) {}
 
   @Post('register')
@@ -126,6 +128,14 @@ export class AuthController {
     );
 
     request.res.setHeader('Set-Cookie', accessTokenCookie.cookie);
+    return user;
+  }
+
+  @MessagePattern('auth.get.user')
+  async getUserFromAuthenticationToken(
+    @Payload() message: GetUserFromTokenDto,
+  ) {
+    const user = this.authService.getUserFromAuthenticationToken(message.token);
     return user;
   }
 }

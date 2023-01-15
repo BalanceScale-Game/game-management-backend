@@ -7,6 +7,7 @@ import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './configs/decorators/catchError';
 import CustomLogger from './modules/log/customLogger';
 import getLogLevels from './utils/getLogLevels';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   // Logger
@@ -14,6 +15,19 @@ async function bootstrap() {
     logger: getLogLevels(process.env.NODE_ENV === 'production'),
     bufferLogs: true,
   });
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.KAFKA,
+    options: {
+      client: {
+        clientId: 'game-management',
+        brokers: ['localhost:9092'],
+      },
+      consumer: {
+        groupId: 'game-management-consumer',
+      },
+    },
+  });
+
   app.useLogger(app.get(CustomLogger));
 
   app.useGlobalPipes(
@@ -40,5 +54,6 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   await app.listen(process.env.PORT);
+  await app.startAllMicroservices();
 }
 bootstrap();

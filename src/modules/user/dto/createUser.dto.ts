@@ -25,5 +25,3 @@ export class CreateUserDto {
   @IsEnum(Roles, { each: true })
   roles: string[];
 }
-
-export default CreateUserDto;

@@ -12,5 +12,3 @@ export class LoginDto {
   @ApiProperty()
   password: string;
 }
-
-export default LoginDto;

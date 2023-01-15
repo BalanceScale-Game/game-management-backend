@@ -1,5 +1,5 @@
 export class CreateLogDto {
-    context: string;
-    message: string;
-    level: string;
+  context: string;
+  message: string;
+  level: string;
 }

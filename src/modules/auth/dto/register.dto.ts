@@ -29,5 +29,3 @@ export class RegisterDto {
   @IsEnum(Roles, { each: true })
   roles: string[];
 }
-
-export default RegisterDto;
