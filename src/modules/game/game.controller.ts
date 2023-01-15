@@ -26,4 +26,10 @@ export class GameController {
     const gameRoom = await this.gameService.createGameRoom(message.userId);
     return gameRoom;
   }
+
+  @MessagePattern('update.room')
+  async updateGameRoom(@Payload() message: CreateRoomDto) {
+    const gameRoom = await this.gameService.createGameRoom(message.userId);
+    return gameRoom;
+  }
 }
