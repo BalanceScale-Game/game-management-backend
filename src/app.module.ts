@@ -3,7 +3,7 @@ import LoggerMiddleware from './configs/middlewares/logger.middleware';
 import { DatabaseModule } from './modules/database/database.module';
 import { LoggerModule } from './modules/log/logs.module';
 import { ConfigModule } from '@nestjs/config';
-import Joi from '@hapi/joi';
+import * as Joi from '@hapi/joi';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/user/users.module';
 import { APP_FILTER } from '@nestjs/core';

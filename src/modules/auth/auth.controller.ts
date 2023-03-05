@@ -28,7 +28,7 @@ import JwtRefreshGuard from './guard/jwtRefresh.guard';
 // Model
 import { User } from 'src/models';
 
-import MongooseClassSerializerInterceptor from 'src/utils/mongooseClassSerializer.interceptor';
+import MongooseClassSerializerInterceptor from 'src/configs/interceptors/mongooseClassSerializer.interceptor';
 import { AllExceptionsFilter } from 'src/configs/decorators/catchError';
 
 @Controller('auth')
@@ -68,7 +68,7 @@ export class AuthController {
     status: 404,
     description: 'Login unsuccessfully',
   })
-  async logIn(@Req() request, @Body() loginData: LoginDto) {
+  async logIn(@Req() req, @Body() loginData: LoginDto) {
     const { email, password } = loginData;
 
     const user = await this.authService.getAuthenticatedUser(email, password);
@@ -84,10 +84,11 @@ export class AuthController {
       user.id,
     );
 
-    request.res.setHeader('Set-Cookie', [
+    req.res.setHeader('Set-Cookie', [
       accessTokenData.cookie,
       refreshTokenData.cookie,
     ]);
+
     return user;
   }
 

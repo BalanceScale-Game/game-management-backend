@@ -8,6 +8,7 @@ import { AllExceptionsFilter } from './configs/decorators/catchError';
 import CustomLogger from './modules/log/customLogger';
 import getLogLevels from './utils/getLogLevels';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { TransformInterceptor } from './configs/interceptors/transform.interceptor';
 
 async function bootstrap() {
   // Logger
@@ -35,9 +36,15 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
+  app.enableCors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  });
   app.use(cookieParser());
 
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalInterceptors(new TransformInterceptor());
 
   // Catch exception
   const httpAdapter = app.get(HttpAdapterHost);
