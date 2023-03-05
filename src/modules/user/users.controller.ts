@@ -4,10 +4,10 @@ import {
   Get,
   Param,
   Patch,
-  Query,
   Req,
   UseFilters,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -25,8 +25,10 @@ import { UpdateUserDto } from './dto';
 
 // Model
 import { User } from 'src/models';
+import MongooseClassSerializerInterceptor from 'src/configs/interceptors/mongooseClassSerializer.interceptor';
 
 @Controller('user')
+@UseInterceptors(MongooseClassSerializerInterceptor(User))
 @UseFilters(AllExceptionsFilter)
 @ApiTags('User')
 export class UsersController {
@@ -43,10 +45,10 @@ export class UsersController {
     description: 'Get user unsuccessfully',
   })
   @UseGuards(JwtAuthGuard)
-  async getUserByEmail(@Query() queries) {
-    const { email } = queries;
-    const users = this.usersService.getByEmail(email);
-    return users;
+  async getUserByJwt(@Req() request) {
+    const { user } = request;
+
+    return user;
   }
 
   @Patch('/:userId')
@@ -72,7 +74,7 @@ export class UsersController {
   ) {
     const { userId } = params;
     const updatedUser = await this.usersService.updateUserById(
-      Number(userId),
+      userId,
       updateUserDto,
     );
     return updatedUser;

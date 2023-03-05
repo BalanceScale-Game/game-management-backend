@@ -40,8 +40,8 @@ export class UsersService {
     );
   }
 
-  async getById(id: number): Promise<User> {
-    const user = await this.userModel.findOne({ where: { id } });
+  async getById(id: string): Promise<User> {
+    const user = await this.userModel.findOne({ _id: id }).populate('roles');
     if (user) {
       return user;
     }
@@ -80,7 +80,7 @@ export class UsersService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async updateUserById(userId: number, userData: UpdateUserDto) {
+  public async updateUserById(userId: string, userData: UpdateUserDto) {
     const user = await this.getById(userId);
 
     return user;
@@ -96,7 +96,7 @@ export class UsersService {
     );
   }
 
-  async getUserIfRefreshTokenMatches(refreshToken: string, userId: number) {
+  async getUserIfRefreshTokenMatches(refreshToken: string, userId: string) {
     const user = await this.getById(userId);
 
     const isRefreshTokenMatching = await bcrypt.compare(
