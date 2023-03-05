@@ -80,7 +80,7 @@ export class AuthService {
     }
   }
 
-  public getCookieWithJwtAccessToken(userId: number) {
+  public getCookieWithJwtAccessToken(userId: string) {
     const payload: TokenPayload = { userId };
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_SECRET'),
@@ -95,7 +95,7 @@ export class AuthService {
     };
   }
 
-  public getCookieWithJwtRefreshToken(userId: number) {
+  public getCookieWithJwtRefreshToken(userId: string) {
     const payload: TokenPayload = { userId };
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
@@ -124,7 +124,7 @@ export class AuthService {
       const user = this.jwtService.verify(token, {
         secret: this.configService.get('JWT_SECRET'),
       });
-      console.log({ user });
+
       return user;
     } catch (ex) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
