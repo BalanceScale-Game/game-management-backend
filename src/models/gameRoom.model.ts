@@ -11,13 +11,11 @@ export class GameRoom {
   _id: string;
 
   @Prop()
-  public game: string;
+  game: string;
 
-  @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: User.name }],
-  })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
   @Type(() => User)
-  public createdBy: User;
+  createdBy: User;
 
   @Prop()
   createdAt?: Date;
